@@ -1,6 +1,8 @@
 import logging
+import socketserver
 import sys
-from subprocess import check_output
+from http.server import BaseHTTPRequestHandler
+from subprocess import check_output, Popen, STDOUT, PIPE
 
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
@@ -15,6 +17,7 @@ def start(update, context):
 def text_to_args(text):
     args = text.split()
     args[0] = args[0][1:]
+    print("request: ", args)
     return args
 
 
@@ -26,8 +29,10 @@ def dig(update, context):
 
 def host(update, context):
     args = text_to_args(update.message.text)
-    result = check_output(args).decode('utf-8')
-    context.bot.send_message(chat_id=update.effective_chat.id, text=result)
+    process = Popen(args, stdout=PIPE, stderr=STDOUT)
+    response = process.stdout.read().decode("utf-8")
+    print("response: ", response)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
 
 
 def echo(update, context):
@@ -52,3 +57,18 @@ dispatcher.add_handler(CommandHandler('host', host))
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
 updater.start_polling()
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Hello, world!')
+
+
+PORT = 8080
+
+with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
+    print("serving at port", PORT)
+    httpd.serve_forever()
