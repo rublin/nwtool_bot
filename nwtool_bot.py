@@ -1,12 +1,20 @@
 import logging
+import os
 import socketserver
-import sys
 from http.server import BaseHTTPRequestHandler
 from subprocess import check_output, Popen, STDOUT, PIPE
 
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 from telegram.ext import Updater
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b'Hello, world!')
 
 
 def start(update, context):
@@ -39,12 +47,9 @@ def echo(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text='Unknown command. Try some of known command...')
 
 
-if len(sys.argv) < 2:
-    print("Pass the token as a first argument")
-    print("python nwtool_bot.py <TOKEN>")
-    sys.exit(2)
+token = os.environ['TG_TOKEN']
 
-updater = Updater(token=sys.argv[1], use_context=True)
+updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -58,16 +63,7 @@ dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
 updater.start_polling()
 
-
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Hello, world!')
-
-
-PORT = 8080
+PORT = 80
 
 with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
     print("serving at port", PORT)
