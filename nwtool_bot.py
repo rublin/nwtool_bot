@@ -48,6 +48,7 @@ def echo(update, context):
 
 
 token = os.environ['TG_TOKEN']
+PORT = int(os.environ['PORT'])
 
 updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
@@ -62,8 +63,6 @@ dispatcher.add_handler(CommandHandler('host', host))
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
 updater.start_polling()
-
-PORT = 80
 
 with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
     print("serving at port", PORT)
