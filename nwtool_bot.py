@@ -25,8 +25,8 @@ def text_to_args(text):
 
 def dig(update, context):
     args = text_to_args(update.message.text)
-    result = check_output(args).decode('utf-8')
-    context.bot.send_message(chat_id=update.effective_chat.id, text=result)
+    response = check_output(args).decode('utf-8')
+    send_response(response, update, context)
 
 
 def whois(update, context):
@@ -34,7 +34,7 @@ def whois(update, context):
     process = Popen(args, stdout=PIPE, stderr=STDOUT)
     response = process.stdout.read().decode("utf-8")
     print("response: ", response)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    send_response(response, update, context)
 
 
 def host(update, context):
@@ -43,10 +43,17 @@ def host(update, context):
     response = process.stdout.read().decode("utf-8")
     print("response: ", response)
     context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+    send_response(response, update, context)
 
 
 def echo(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text='Unknown command. Try some of known command...')
+    send_response('Unknown command. Try some of known command...', update, context)
+
+
+def send_response(response, update, context):
+    chunk_size = 4096
+    for i in range(0, len(response), chunk_size):
+        context.bot.send_message(chat_id=update.effective_chat.id, text=response[i:i + chunk_size])
 
 
 token = os.environ['TG_TOKEN']
