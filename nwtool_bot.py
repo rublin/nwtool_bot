@@ -1,20 +1,14 @@
 import logging
 import os
 import socketserver
-from http.server import BaseHTTPRequestHandler
+from datetime import datetime
 from subprocess import check_output, Popen, STDOUT, PIPE
 
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
 from telegram.ext import Updater
 
-
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'Hello, world!')
+from web import SimpleHTTPRequestHandler
 
 
 def start(update, context):
@@ -49,6 +43,7 @@ def echo(update, context):
 
 token = os.environ['TG_TOKEN']
 PORT = int(os.environ['PORT'])
+startedAt = datetime.now()
 
 updater = Updater(token=token, use_context=True)
 dispatcher = updater.dispatcher
@@ -66,4 +61,5 @@ updater.start_polling()
 
 with socketserver.TCPServer(("", PORT), SimpleHTTPRequestHandler) as httpd:
     print("serving at port", PORT)
+    httpd.RequestHandlerClass.startedAt = startedAt
     httpd.serve_forever()

@@ -9,4 +9,6 @@ Network tool telegram bot
 
 3. Run the bot:
 
-`python nwtool_bot.py <TOKEN>`
+`python nwtool_bot.py `
+
+Use the environment variables to pass the telegram bot token and the web server port.
