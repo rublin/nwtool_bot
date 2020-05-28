@@ -29,6 +29,14 @@ def dig(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=result)
 
 
+def whois(update, context):
+    args = text_to_args(update.message.text)
+    process = Popen(args, stdout=PIPE, stderr=STDOUT)
+    response = process.stdout.read().decode("utf-8")
+    print("response: ", response)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=response)
+
+
 def host(update, context):
     args = text_to_args(update.message.text)
     process = Popen(args, stdout=PIPE, stderr=STDOUT)
@@ -55,6 +63,7 @@ dispatcher.add_handler(CommandHandler('start', start))
 # dispatcher.add_handler(MessageHandler(Filters.text('dig .*'), dig))
 dispatcher.add_handler(CommandHandler('dig', dig))
 dispatcher.add_handler(CommandHandler('host', host))
+dispatcher.add_handler(CommandHandler('whois', whois))
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
 updater.start_polling()
