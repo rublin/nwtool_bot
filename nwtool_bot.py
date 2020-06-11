@@ -2,7 +2,7 @@ import logging
 import os
 import socketserver
 from datetime import datetime
-from subprocess import check_output, Popen, STDOUT, PIPE
+from subprocess import Popen, STDOUT, PIPE
 
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters
@@ -25,7 +25,8 @@ def text_to_args(text):
 
 def dig(update, context):
     args = text_to_args(update.message.text)
-    response = check_output(args).decode('utf-8')
+    process = Popen(args, stdout=PIPE, stderr=STDOUT)
+    response = process.stdout.read().decode('utf-8')
     send_response(response, update, context)
 
 
