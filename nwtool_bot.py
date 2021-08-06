@@ -47,6 +47,10 @@ def host(update, context):
     send_response(response, update, context)
 
 
+def info(update, context):
+    send_response('The bot helps you to check the network using such commands:\n- /dig\n- /host\n- /whois', update, context)
+
+
 def echo(update, context):
     send_response('Unknown command. Try some of known command...', update, context)
 
@@ -72,6 +76,7 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('dig', dig))
 dispatcher.add_handler(CommandHandler('host', host))
 dispatcher.add_handler(CommandHandler('whois', whois))
+dispatcher.add_handler(CommandHandler('info', info))
 dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), echo))
 
 updater.start_polling()
